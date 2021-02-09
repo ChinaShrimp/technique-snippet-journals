@@ -80,6 +80,9 @@ module.exports = {
         extensions: [".mdx", ".md"],
         gatsbyRemarkPlugins: [
           {
+            resolve: 'gatsby-remark-mermaid',
+          },
+          {
             resolve: `gatsby-remark-images`,
             options: {
               maxWidth: 590,
