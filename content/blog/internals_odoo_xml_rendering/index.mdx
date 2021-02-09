@@ -1,0 +1,37 @@
+---
+title: Odoo的模板引擎机制
+path: /internals-odoo-xml-rendering
+description: Odoo的模板引擎机制
+date: 2021-02-09
+---
+
+# 流程
+
+```mermaid
+sequenceDiagram
+    浏览器 ->> Odoo Web Controller: /web
+    Odoo Web Controller ->> HttpRequest: render('web.webclient_bootstrap',...)
+    HttpRequest ->> HttpRequest: 生成Response对象
+    HttpRequest ->> Odoo Web Controller: response
+    Odoo Web Controller ->> HTTP: response
+    HTTP ->> Response: render
+    Response ->> ir_ui_view: render_template
+    ir_ui_view ->> ir_qweb: render
+    ir_qweb ->> ir_ui_view: HTML
+    ir_ui_view ->> Response: HTML
+    Response ->> HTTP: HTML
+    HTTP ->> 浏览器: HTML
+```
+
+# 视图
+
+在Odoo中，所有的视图都是通过XML进行定义，Odoo会解析这些XML文件，并将其作为一条`ir.ui.view`记录保存在数据库中。
+
+```python
+class View(models.Model):
+    _name = 'ir.ui.view'
+    _description = 'View'
+    _order = "priority,name,id"
+
+    ...
+```

@@ -1,0 +1,138 @@
+---
+title: 如何高效写作：Gatsby MDX
+author: Lyon Liang
+description: 高效使用Gatsby MDX的方法
+date: 2021-02-09
+path: /howto-gatsby-mdx-effective
+draft: true
+category: "生产力"
+tags: 
+    - Gatsby 
+    - MDX
+---
+
+# 目录
+
+```toc
+```
+
+# 1. 创建新的MDX
+
+使用Gatsby创作时，VSCode成为了必选的编辑器之一。每次作者创建一篇新的笔记，都需要在源码目录`content/blog`下：
+- 新建一个目录并命名
+- 在新建的目录下创建`index.mdx`文件
+- 初始化`index.mdx`文件模板
+
+其中模板中的必要信息如下：
+```mdx
+---
+title: 
+author: 
+description: 
+date: 
+path: 
+draft: 
+category: 
+tags:
+---
+
+#
+```
+
+VSCode插件`coderfee.new-gatsby-post`已经实现了以上工作的自动化，安装插件并在`settings.json`中加入如下配置:
+
+```json
+{
+    // 文章目录，默认值：src/pages
+  "gatsby.postsDir": "content/blog",
+
+  // 文章头部，默认值：["title", "date", "path"]
+  "gatsby.frontmatter": ["title", "description", "date", "author", "path",  "draft", "category", "tags"]
+}
+```
+
+# 2. 绘制流程图
+
+在写作过程中我们需要绘制各种图表，基于Markdown文本格式的一条技术途径是：
+- 第三方软件画图
+- 截图
+- 上传截图
+- 在文章中粘贴图片URL
+
+可以看到上述过程基本上把创作者的热情完全磨灭了！
+
+而[**Mermaid**](https://mermaid-js.github.io/mermaid/#/)解救了我们：
+> Mermaid lets you represent diagrams using text and code. This simplifies maintaining complex diagrams. It is a Javascript based diagramming and charting tool that renders Markdown-inspired text definitions to create and modify diagrams dynamically. The main purpose of Mermaid is to help Documentation catch up with Development.
+
+为了在Gatsby中使用Mermaid，我们需要首先在项目根目录下运行命令安装所需要的npm包：
+```bash
+npm install --save gatsby-remark-mermaid puppeteer
+```
+
+修改`gatsby-config.js`文件:
+```json
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        extensions: [".mdx", ".md"],
+        gatsbyRemarkPlugins: [
+          // 增加以下三行
+          {
+            resolve: 'gatsby-remark-mermaid',
+          },
+          ...
+```
+
+Hooray!
+
+# 3. 章节目录
+
+为你的文章自动生成目录，插件来帮忙。在项目根目录下运行：
+
+```bash
+yarn add gatsby-remark-autolink-headers gatsby-remark-table-of-contents
+```
+
+修改`gatsby-config.js`文件:
+```json
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        extensions: [".mdx", ".md"],
+        gatsbyRemarkPlugins: [
+          // 增加以下内容
+          {
+            resolve: `gatsby-remark-table-of-contents`,
+            options: {
+              exclude: "目录",
+              tight: false,
+              ordered: false,
+              fromHeading: 1,
+              toHeading: 6,
+              className: "table-of-contents"
+            },
+          },
+          `gatsby-remark-autolink-headers`,
+          {
+            resolve: 'gatsby-remark-mermaid',
+          },
+          ...
+```
+
+详细的插件配置说明参见：https://www.gatsbyjs.com/plugins/gatsby-remark-table-of-contents/?=tableof
+
+
+# 4. 插入图片
+
+使用VSCode插件`mushan.vscode-paste-image`，安装！
+
+默认该插件将剪切板中的附件到与文件同一级目录下，修改PasteImage插件的配置，编辑VSCode的`settings.json`，增加一行配置：
+```json
+{
+    ...
+    // 将图片保存到文件同一级的images目录下
+    "pasteImage.path": "${currentFileDir}/images"
+}
+```
+
+定义VSCode的快捷键为`F1 L`，因为它默认的快捷键与作者使用的软件Paste冲突了。
