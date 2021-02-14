@@ -1,17 +1,76 @@
 ---
 title: Odoo的模块机制
-path: /internals-odoo-module-mechanism
-description: Odoo的模块机制
 author: Lyon Liang
+description: Odoo的模块机制
 date: 2021-02-09
-tag: Odoo 技术内幕
+path: /internals-odoo-module-mechanism
+draft: true
+category: "技术内幕"
+tags: 
+    - Odoo
 ---
 
-# 架构
+# 目录
+
+```toc
+```
+
+# 1. 架构
 
 Odoo采用模块化架构，在模块化方面做到了"极致"。
 
-# 启动
+## 1.1 应用模块架构
+
+## 1.2 模块模型 (Module Model)
+
+## 基础数据模型
+
+### Registry
+
+> The registry is essentially a mapping between model names and model classes. There is one registry instance per database.
+
+定义模型名称和模型类名之间的映射。
+
+### ir.module.module
+
+### ir.model.data
+
+
+## 数据库初始化
+
+- _initialize_db
+    - odoo.modules.registry.Registry.new
+        - odoo.modules.load_modules
+            - 每次Odoo启动时依据数据库中是否存在`ir_module_module`表来确认数据库是否已经初始化。如果该表不存在，则调用odoo.modules.db.initialize()进行初始化。
+                - 根据`base/data/base_data.sql`初始化数据库
+                - 根据`addons_path`找到所有的模块，对于每一个模块
+                    - 读取每个模块的manifest文件，将记录插入到`ir_module_module`中，该表中保存了模块的元信息
+                    - 模块还会将模块名保存在`ir_model_data`中，通过`res_id`索引`ir_module_module`中的记录，并将`model`指定为`ir.module.module`
+                    - 模块声明的依赖保存到`ir_module_module_dependency`中
+                - 递归的将`auto_install`模块状态标注为'to install'。此处有坑，模块会被自动安装的几个必要条件：
+                    - `auto_install`为`True`
+                    - 所有依赖都已经被安装
+            - - load_module_graph
+
+
+##
+
+所有模块在数据库中的模型`ir.module.module`
+
+
+# 2. 流程
+
+## 启动
+
+```
+odoo-bin
+    odoo.cli.main
+        odoo.cli.Server.run
+            odoo.service.server.start
+                load_server_wide_modules: 目前从代码看只有base和web
+                    load_openerp_module: 加载模块的manifest描述文件
+
+```
 
 # 安装 
 

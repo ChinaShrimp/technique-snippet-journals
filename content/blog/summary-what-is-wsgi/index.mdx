@@ -1,0 +1,70 @@
+---
+title: 'WSGI'
+author: 'Lyon Liang'
+description: '总结WSGI'
+date: '2021-02-14'
+path: '/summary-what-is-wsgi'
+draft: true
+category: 'web'
+tags: 
+    - 'wsgi'
+    - 'web'
+---
+
+# 1. WSGI
+
+## 问题起源
+
+Python Web框架众多，但是由于缺乏规范，开发者一旦选择了某个Web框架，也就相当于选择了一定的Web服务器。而当时Java框架与Web服务器之间解耦合的关键在于Servelet API，也即使用任何框架开发的Java Web应用均可以运行在任意支持Servelet API的Web服务器之上。
+
+借鉴Java解决问题的思想，人们开始讨论WSGI(the Python Web Server Gateway Interface)。
+
+## WSGI是什么？
+
+WSGI是作为Web服务器与Web应用程序或应用框架之间的一种低级别的接口，它不是：
+- Web服务器
+- Python模块
+- API
+以提升可移植Web应用开发的共同点。WSGI是基于现存的CGI标准而设计的。
+
+
+WSGI区分为两个部分：一为“服务器”或“网关”，另一为“应用程序”或“应用框架”。服务端和应用端之间的接口被定义在[PEP 3333](https://www.python.org/dev/peps/pep-3333/)中。在处理一个WSGI请求时，服务器会为应用程序提供环境信息及一个回调函数（Callback Function）。当应用程序完成处理请求后，透过前述的回调函数，将结果回传给服务器。
+
+如果一个应用遵循WSGI规范，那么它可运行在任意的支持WSGI接口的Web服务器之上。
+
+## 服务端
+
+The server or gateway invokes the application callable once for each request it receives from an HTTP client, that is directed at the application. 
+
+当接受到从HTTP客户端发来的请求时，服务端调用应用端提供的application object，传递请求信息以及上下文信息。
+
+## 应用端
+
+> The application object is simply a callable object that accepts two arguments. The term "object" should not be misconstrued as requiring an actual object instance: a function, method, class, or instance with a __call__ method are all acceptable for use as an application object. Application objects must be able to be invoked more than once, as virtually all servers/gateways (other than CGI) will make such repeated requests.
+
+应用端提供一个application object供服务端调用！
+
+# 2. WSGI Server
+
+## Apache mod_wsgi
+
+# 3. WSGI中间件
+
+Note that a single object may play the role of a server with respect to some application(s), while also acting as an application with respect to some server(s). Such "middleware" components can perform such functions as:
+
+- Routing a request to different application objects based on the target URL, after rewriting the environ accordingly.
+- Allowing multiple applications or frameworks to run side by side in the same process
+- Load balancing and remote processing, by forwarding requests and responses over a network
+- Perform content postprocessing, such as applying XSL stylesheets
+
+## Werkzeug
+
+> Werkzeug is a utility library for WSGI. WSGI itself is a protocol or convention that ensures that your web application can speak with the webserver and more importantly that web applications work nicely together.
+
+
+
+# 4. WSGI Application
+
+# 参考
+
+1. [WSGI explorations in Python](https://linuxgazette.net/115/orr.html)
